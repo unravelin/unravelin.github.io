@@ -1,0 +1,1358 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>API Reference</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,100,500,700" rel="stylesheet" type="text/css">
+ 
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" type="text/css" media="print" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="javascripts/all_nosearch.js" type="text/javascript"></script>
+
+  </head>
+
+  <body class="index">
+
+
+  <div class="navbar-wrapper">
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">
+            <img src="https://ravelin.com/wp-content/themes/rav-theme/images/logo.svg" height="40px">
+          </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://developer.ravelin.com">API Docs</a></li>
+            <li><a href="https://ravelin.com/jobs/">Jobs</a></li>
+            <li><a href="https://ravelin.com/blog/">Blog</a></li>
+            <li><a href="https://ravelin.com/contact/">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+
+    <div class="tocify-wrapper">
+      <div class="logo">
+        <a href="#top">
+        <img width="200" alt="Ravelin Logo" src="images/logo_dark.svg" />
+        </a>
+      </div>
+      <div id="toc">
+      </div>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="introduction">Introduction</h1>
+
+<p>Welcome to the Ravelin API. Our mission for the API is to make it as simple as possible for a developer to send any information about a customer&rsquo;s journey to our systems. It should take only a couple of hours to do a full integration.</p>
+
+<p>If there is anything we can do to improve our API, or you encounter any bugs, please email <code class="prettyprint">api@ravelin.com</code> and a Ravelin developer will get back to you as soon as possible.</p>
+
+          <h1 id="tl;dr">TL;DR</h1>
+
+<p>We know developers like to skip to the end so here is the really short version of our API docs.</p>
+
+<ul>
+<li>Send us anything that happens in your system to do with a customer as soon as it happens</li>
+<li>JSON format over HTTPS using POST method</li>
+<li>JSON needs to include include eventType, timestamp and customerId (and/or sessionId). All other fields are up to you but the more the better.</li>
+<li>Send header: <code class="prettyprint">Authorization: token XXXXX-XXXXX-XXXXX-XXXX</code></li>
+<li>Endpoint for all events: <code class="prettyprint">https://api.ravelin.com/v1/events</code></li>
+</ul>
+
+          <h1 id="authentication">Authentication</h1>
+<pre class="highlight shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
+curl <span class="s2">"https://api.ravelin.com/ping"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span>
+</code></pre>
+
+<blockquote>
+<p>Make sure to replace <code class="prettyprint">XXXXX-XXXXX-XXXXX-XXXX</code> with your API key.</p>
+</blockquote>
+
+<p>Ravelin uses API keys to allow access to the API. You can register a new Ravelin API key by contacting your account manager. Ravelin expects the API key to be included in the authorization header for all API requests i.e.</p>
+
+<p><code class="prettyprint">Authorization: token XXXXX-XXXXX-XXXXX-XXXX</code></p>
+
+<aside class="alert alert-danger">
+All API endpoints require an Authorization header with the API key.
+</aside>
+
+          <h1 id="events">Events</h1>
+<pre class="highlight shell"><code><span class="c"># Example customer register event</span>
+curl <span class="s2">"https://api.ravelin.com/v1/events"</span> <span class="se">\</span>
+  -d <span class="s1">'{"customerId":"6a4f44ef","eventType":"customerRegister", "firstName": "John", "lastName": "Smith", "timestamp": "1433418199"}'</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span> <span class="se">\</span>
+  -X POST
+</code></pre>
+<pre class="highlight shell"><code><span class="c"># Example customer update event</span>
+curl <span class="s2">"https://api.ravelin.com/v1/events"</span> <span class="se">\</span>
+  -d <span class="s1">'{"customerId":"6a4f44ef", "eventType":"customerUpdate", "email": "john@Smith.co", "timestamp": "1433418799"}'</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span> <span class="se">\</span>
+  -X POST
+</code></pre>
+
+<p>Ravelin works by receiving a stream of customer interactions. In almost all cases you will be sending partial information to the Ravelin API, we call these partial information requests <code class="prettyprint">events</code>. We analyse these events and build rich models of customers, devices, transactions and several other entities, and extract features from the raw input events to augment the profiles of these entities. We then run machine learning models against these profiles and features using training sets of known fraud to identify clusters and classify behaviours, allowing us to constantly evaluate customers for risk on every mutation of the entity.</p>
+
+<p>The Ravelin system is built to recieve any information you may have about a customer as soon as you have it. Events should be sent over as a valid flat JSON body in a HTTPS POST request. The naming of the keys in the JSON is generally up to you (as we will decode your event within our systems), the only requirement is they all must have <code class="prettyprint">eventType</code>, <code class="prettyprint">customerId</code> (or <code class="prettyprint">sessionId</code>) and <code class="prettyprint">timestamp</code>. Once you starting sending events into Ravelin&rsquo;s platform you should not change the name of these keys to avoid potential data interruptions.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://api.ravelin.com/v1/events</code></p>
+
+<h3 id="required-fields-in-json-body">Required Fields in JSON Body</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>eventType</td>
+            <td><code>string</code></td>
+            <td>The name of event that you are sending us. e.g. <code>cardRegister</code>.</td>
+        </tr>
+        <tr>
+            <td>customerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the customer that this event is associated with. Optional if the <code>sessionId</code> is provided but you should provide both
+            where possible.</td>
+        </tr>
+        <tr>
+            <td>sessionId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of session for the customer that this event is associated with. Optional if the <code>customerId</code> is provided but you should provide both
+            where possible.</td>
+        </tr>
+        <tr>
+            <td>timestamp</td>
+            <td><code>string</code></td>
+            <td>The unix timestamp, in seconds, of when the event occured.</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>All other fields are optional. However, you should send us as much information as possible that relate to the below entities and events. If you are in any doubt as whether to send a field to Ravelin, <strong>you should send it</strong>. It will allow us to potentially utilise the field in the future for more accurate fraud detection.</p>
+
+<h2 id="events-as-notifications">Events as Notifications</h2>
+<pre class="highlight shell"><code><span class="c"># transactionFailed event</span>
+curl <span class="s2">"https://api.ravelin.com/v1/events"</span> <span class="se">\</span>
+  -d <span class="s1">'{"customerId":"6a4f44ef","eventType":"transactionFailed", "transactionId": "578", "timestamp": "1433418799"}'</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span> <span class="se">\</span>
+  -X POST
+</code></pre>
+<pre class="highlight shell"><code><span class="c"># transaction update event</span>
+curl <span class="s2">"https://api.ravelin.com/v1/events"</span> <span class="se">\</span>
+  -d <span class="s1">'{"customerId":"6a4f44ef","eventType":"transaction", "transactionId": "578", success": "false", "timestamp": "1433418799"}'</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span> <span class="se">\</span>
+  -X POST
+</code></pre>
+
+<p>Following on from above, Ravelin supports the ability to understand the presence of events as indicators that something has happened. For example a transaction may fail and you could choose to send an event as an update on the transaction or a transactionFailed event.</p>
+
+          <h1 id="entities">Entities</h1>
+
+<p>After your events are processed by our API, we decode them into entities for further analysis and processing. Remember, you do not have to worry about the actual decoding of the entity: the mapping of your JSON into our entities will be done by engineers at Ravelin. Simply send data to Ravelin as and when you have it within your application. You do not have to pay attention to the key names below if it doesn&rsquo;t suit your application.</p>
+
+<p>You should aim to send as much information as possible from the below objects, if it is applicable to your business. The more data and detail that Ravelin receives about customer behaviour, the better we can protect you from fraud. We are continually adding fields to our entities but if you feel we have missed something important to your business please contact us at <code class="prettyprint">api@ravelin.com</code>. </p>
+
+<p><em><code class="prettyprint">eventType</code>, <code class="prettyprint">timestamp</code> and <code class="prettyprint">customerId</code> (and/or <code class="prettyprint">sessionId</code>) have sometimes been ommited for brevity however are still required for every event.</em></p>
+
+<h2 id="customer">Customer</h2>
+<pre class="highlight shell"><code><span class="c"># Customer has signed up</span>
+curl <span class="s2">"https://api.ravelin.com/v1/events"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span> <span class="se">\</span>
+  -d <span class="s1">'{"eventType":"signUp", "timestamp": "1433418799", "customerId": "123", "name": "bob", "givenName": "Bob", "familyName": "", "email": "bob@smith.co.uk"}'</span> <span class="se">\</span>
+  -X POST
+</code></pre>
+<pre class="highlight shell"><code><span class="c"># Customer has verfified their email address whilst confirming their date of birth</span>
+curl <span class="s2">"https://api.ravelin.com/v1/events"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span> <span class="se">\</span>
+  -d <span class="s1">'{"eventType":"verify", "timestamp": "1433418799", "customerId": "123", "familyName": "Smith", "dateOfBirth": "1986-07-18", "emailVerifiedTime": "1433418799", "telephoneVerifiedTime": ""}'</span> <span class="se">\</span>
+  -X POST
+</code></pre>
+
+<blockquote>
+<p>Note that the first event is missing fields that the second event completes, and that the eventType in both cases have no relevance to a customer, yet Ravelin will be able to map it to the correct entity. </p>
+</blockquote>
+
+<p>A customer is a user that interacts with your business in any way. You should send Ravelin an event any time a customer registers, or any time any of the below information is updated.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>customerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the customer.</td>
+        </tr>
+        <tr>
+            <td>name</td>
+            <td><code>string</code></td>
+            <td>The full name of the customer.</td>
+        </tr>
+        <tr>
+            <td>givenName</td>
+            <td><code>string</code></td>
+            <td>The given name of the customer - often the first name of a customer.</td>
+        </tr>
+        <tr>
+            <td>familyName</td>
+            <td><code>string</code></td>
+            <td>The family name of the customer - often the last name of a customer.</td>
+        </tr>
+        <tr>
+            <td>dateOfBirth</td>
+            <td><code>string</code></td>
+            <td>The date of birth of the customer, formatted as <code>YYYY-MM-DD</code>.</td>
+        </tr>
+        <tr>
+            <td>gender</td>
+            <td><code>string</code></td>
+            <td>The gender of the customer.</td>
+        </tr>
+        <tr>
+            <td>email</td>
+            <td><code>string</code></td>
+            <td>The primary email of the customer.</td>
+        </tr>
+        <tr>
+            <td>emailVerifiedTime</td>
+            <td><code>string</code></td>
+            <td>The unix timestamp when the customer&rsquo;s email was verified.</td>
+        </tr>
+        <tr>
+            <td>userName</td>
+            <td><code>string</code></td>
+            <td>The username of the customer.</td>
+        </tr>
+        <tr>
+            <td>telephone</td>
+            <td><code>string</code></td>
+            <td>The telephone number of the customer, including international code.</td>
+        </tr>
+        <tr>
+            <td>telephoneVerifiedTime</td>
+            <td><code>string</code></td>
+            <td>The unix timestamp when the customer&rsquo;s telephone was verified.</td>
+        </tr>
+        <tr>
+            <td>avatarUrl</td>
+            <td><code>string</code></td>
+            <td>The URL of the profile picture, if one was uploaded.</td>
+        </tr>
+        <tr>
+            <td>flagged</td>
+            <td><code>bool</code></td>
+            <td>If the customer was actually fraudulent or not.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 id="typical-events">Typical Events</h3>
+
+<p>A list of typical events that may affect a customer entity.</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th style="width:175px;">EventType</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>CustomerRegister</code></td>
+            <td>Customer signs up to your service.</td>
+        </tr>
+        <tr>
+            <td><code>CustomerUpdate</code></td>
+            <td>Customer changed any profile information</td>
+        </tr>
+        <tr>
+            <td><code>AddProfilePicture</code></td>
+            <td>Customer uploads a photo for his profile</td>
+        </tr>
+        <tr>
+            <td><code>VerifyEmailAddress</code></td>
+            <td>Customer verifies their email address</td>
+        </tr>
+        <tr>
+            <td><code>VerifyPhoneNumber</code></td>
+            <td>Customer verifies their phone number</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="device">Device</h2>
+<pre class="highlight shell"><code><span class="c"># Customer attemps to logout</span>
+curl <span class="s2">"https://api.ravelin.com/v1/events"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span> <span class="se">\</span>
+  -d <span class="s1">'{"eventType":"logout", "timestamp": "1433418799", "customerId": "123", "deviceId": "2b6f0cc904d137be2e1730235f5664094b831186"}'</span> <span class="se">\</span>
+  -X POST
+</code></pre>
+<pre class="highlight shell"><code><span class="c"># Customer logs in with a new device</span>
+curl <span class="s2">"https://api.ravelin.com/v1/events"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: token XXXXX-XXXXX-XXXXX-XXXX"</span> <span class="se">\</span>
+  -d <span class="s1">'{"eventType":"login", "timestamp": "1433418799", "customerId": "123", "deviceId": "81bf0cc904d137be2e173023529864094b831782", "deviceType": "phone", "deviceManufacturer": "apple", "deviceModel": "iphone 6", "deviceOS": "iOS 8",}'</span> <span class="se">\</span>
+  -X POST
+</code></pre>
+
+<p>A device is a physical object that a customer uses to interact with your application. Examples include a mobile phone, tablet or laptop. You should send Ravelin this information on the customer&rsquo;s first interaction with your application, along with a <code class="prettyprint">deviceId</code> (either from the device or a unique ID your business defines).</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+<tr>
+    <td>customerId</td>
+    <td><code>string</code></td>
+    <td>The unique identifier of the customer.</td>
+</tr>
+<tr>
+    <td>deviceId</td>
+    <td><code>string</code></td>
+    <td>A unique identifier for the device - e.g. UDID.</td>
+</tr>
+<tr>
+    <td>deviceType</td>
+    <td><code>string</code></td>
+    <td>The type of device. Valid values are: <code>computer</code>, <code>phone</code>, <code>tablet</code></td>
+</tr>
+<tr>
+    <td>deviceManufacturer</td>
+    <td><code>string</code></td>
+    <td>The manufacturer of the device: e.g. <code>apple</code>, <code>samsung</code>.</td>
+</tr>
+<tr>
+    <td>deviceModel</td>
+    <td><code>string</code></td>
+    <td>The model name of the device: e.g. <code>iphone 6</code>, <code>nexus 7</code>.</td>
+</tr>
+<tr>
+    <td>deviceOS</td>
+    <td><code>string</code></td>
+    <td>The OS that the device is running: e.g. <code>ios</code>, <code>android</code>.</td>
+</tr>
+<tr>
+    <td>ipAddress</td>
+    <td><code>string</code></td>
+    <td>The IP address that this device is connecting from.</td>
+</tr>
+<tr>
+    <td>browser</td>
+    <td><code>string</code></td>
+    <td>The name of the web browser being used, if applicable.</td>
+</tr>
+<tr>
+    <td>javascriptEnabled</td>
+    <td><code>bool</code></td>
+    <td>Whether Javascript is enabled on the web browser.</td>
+</tr>
+<tr>
+    <td>cookiesEnabled</td>
+    <td><code>bool</code></td>
+    <td>Whether cookies are enabled on the web browser.</td>
+</tr>
+<tr>
+    <td>screenResolution</td>
+    <td><code>string</code></td>
+    <td>The resolution of the screen on the device in the format <code>XxY</code>: e.g. <code>800x600</code>.</td>
+</tr>
+<tr>
+    <td>availableViewport</td>
+    <td><code>string</code></td>
+    <td>Not sure about this.</td>
+</tr>
+<tr>
+    <td>colourDepth</td>
+    <td><code>int</code></td>
+    <td>Not sure about this.</td>
+</tr>
+<tr>
+    <td>browserPluginCount</td>
+    <td><code>int</code></td>
+    <td>The number of browser plugins that the user has enabled.</td>
+</tr>
+    </tbody>
+</table>
+
+<h2 id="location">Location</h2>
+
+<p>A location is a place in the phsyical world where some event took place. You can send Ravelin data with street addresses, and we will reverse geocode to obtain the latitude and longitude, or vice versa. If you have both, then that&rsquo;s fab.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>customerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the customer.</td>
+        </tr>
+        <tr>
+            <td>streetAddress1</td>
+            <td><code>string</code></td>
+            <td>First line of the street address.</td>
+        </tr>
+        <tr>
+            <td>streetAddress2</td>
+            <td><code>string</code></td>
+            <td>Second line of the street address.</td>
+        </tr>
+        <tr>
+            <td>addressLocale</td>
+            <td><code>string</code></td>
+            <td>The city/village/town of the location.</td>
+        </tr>
+        <tr>
+            <td>addressRegion</td>
+            <td><code>string</code></td>
+            <td>The state/county of the location.</td>
+        </tr>
+        <tr>
+            <td>addressCountry</td>
+            <td><code>string</code></td>
+            <td>The ISO 3166 country code.</td>
+        </tr>
+        <tr>
+            <td>postOfficeBoxNumber</td>
+            <td><code>string</code></td>
+            <td>The PO box number, if applicable.</td>
+        </tr>
+        <tr>
+            <td>latitude</td>
+            <td><code>double</code></td>
+            <td>The latitude of the location.</td>
+        </tr>
+        <tr>
+            <td>longitude</td>
+            <td><code>double</code></td>
+            <td>The longitude of the location.</td>
+        </tr>
+        <tr>
+            <td>geohash</td>
+            <td><code>string</code></td>
+            <td>The geohash of the location, if applicable.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 id="typical-events">Typical Events</h3>
+
+<p>A list of typical events that may affect location entities.</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th style="width:175px;">EventType</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>BillingAddress</code></td>
+            <td>Customer credit card address.</td>
+        </tr>
+        <tr>
+            <td><code>ShippingAddress</code></td>
+            <td>Customer shipping address.</td>
+        </tr>
+        <tr>
+            <td><code>DeviceLocation</code></td>
+            <td>Customer actual location.</td>
+        </tr>
+        <tr>
+            <td><code>PickupLocation</code></td>
+            <td>Where the customer would like to be picked up (if you are a transport app).</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="order">Order</h2>
+
+<p>An order is an intent to purchase a good or service from your business by a customer. In most cases you should send Ravelin an event every time an order is started, even if that order or service is abandoned later on. A order is composed of the below fields and are typically associated with<code class="prettyprint">Locations</code>, <code class="prettyprint">Devices</code>, <code class="prettyprint">Items</code> and <code class="prettyprint">Transactions</code>.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>customerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the customer.</td>
+        </tr>
+        <tr>
+            <td>orderId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the order.</td>
+        </tr>
+        <tr>
+            <td>deviceId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the device used - e.g. UDID.</td>
+        </tr>
+        <tr>
+            <td>email</td>
+            <td><code>string</code></td>
+            <td>A contact email for this order.</td>
+        </tr>
+        <tr>
+            <td>price</td>
+            <td><code>int</code></td>
+            <td>The price of the purchase in the lowest denomination of the currency.</td>
+        </tr>
+        <tr>
+            <td>currency</td>
+            <td><code>string</code></td>
+            <td>The ISO 4217 currency code.</td>
+        </tr>
+        <tr>
+            <td>sellerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the seller/counterparty in the transaction, if not your business. E.g. an ID of a driver when a customer is ordering a car, or the ID of a restaurant when a customer is ordering food.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 id="typical-events">Typical Events</h3>
+
+<p>A list of typical events that may affect an order entity.</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th style="width:175px;">EventType</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>CreateOrder</code></td>
+            <td>Customer creates an order.</td>
+        </tr>
+        <tr>
+            <td><code>AddItem</code></td>
+            <td>Will update the order price and, if the order does not exist, will create an order.</td>
+        </tr>
+        <tr>
+            <td><code>SetEmail</code></td>
+            <td>Customer sets the contact email address just for this order.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="item">Item</h2>
+
+<p>An item can be thought of as a singular object or service that the customer is attempting to purchase. For example, this would represent a single item in an ecommerce basket, a single item of food being delivered as part of a wider order, or a single taxi ride. <strong><em>You can remove an item from and order by setting quantity to minus (e.g. -1)</em></strong>.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>customerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the customer.</td>
+        </tr>
+        <tr>
+            <td>cartItemId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the item in the &lsquo;basket&rsquo;. *badly explained*.</td>
+        </tr>
+        <tr>
+            <td>orderId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the order that this item is a part of.</td>
+        </tr>
+        <tr>
+            <td>deviceId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the device used - e.g. UDID.</td>
+        </tr>
+        <tr>
+            <td>sku</td>
+            <td><code>string</code></td>
+            <td>A merchant specific identifier for an item or a service.</td>
+        </tr>
+        <tr>
+            <td>name</td>
+            <td><code>string</code></td>
+            <td>The name of the product that is being purchased.</td>
+        </tr>
+        <tr>
+            <td>price</td>
+            <td><code>int</code></td>
+            <td>The price of the single item, if many bought, in the lowest denomination of the currency: e.g. cents for US dollars, pence for UK pound.</td>
+        </tr>
+        <tr>
+            <td>currency</td>
+            <td><code>string</code></td>
+            <td>The ISO 4217 currency code.</td>
+        </tr>
+        <tr>
+            <td>brand</td>
+            <td><code>string</code></td>
+            <td>The name of the brand that the item is from. </td>
+        </tr>
+        <tr>
+            <td>UPC</td>
+            <td><code>string</code></td>
+            <td>The name of the Universal Item Code.</td>
+        </tr>
+        <tr>
+            <td>category</td>
+            <td><code>string</code></td>
+            <td>The highest level category that this item is sold in.</td>
+        </tr>
+        <tr>
+            <td>quantity</td>
+            <td><code>int</code></td>
+            <td>The discrete number of the item, if ordering multiple of the same item.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="transaction">Transaction</h2>
+
+<p>An transaction is an attempt to charge a payment method to pay or be refunded for an order. You can think of it as the data included in your request from your application to a payment gateway. One order could have many transactions associated with it: e.g. pay part of balance with <code class="prettyprint">card</code>, pay part of balance with <code class="prettyprint">voucher</code>.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>customerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the customer.</td>
+        </tr>
+        <tr>
+            <td>transactionId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the transaction.</td>
+        </tr>
+        <tr>
+            <td>orderId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for order.</td>
+        </tr>
+        <tr>
+            <td>paymentMethodId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the payment method.</td>
+        </tr>
+        <tr>
+            <td>success</td>
+            <td><code>bool</code></td>
+            <td>Whether the transaction successfully completed with no error.</td>
+        </tr>
+        <tr>
+            <td>email</td>
+            <td><code>string</code></td>
+            <td>The email that the customer wants to be notified about transactions on.</td>
+        </tr>
+        <tr>
+            <td>currency</td>
+            <td><code>string</code></td>
+            <td>The ISO 4217 currency code.</td>
+        </tr>
+        <tr>
+            <td>debit</td>
+            <td><code>int</code></td>
+            <td>The debit amount of the transaction in the lowest denomination of the currency.</td>
+        </tr>
+        <tr>
+            <td>credit</td>
+            <td><code>int</code></td>
+            <td>The credit amount of the transaction in the lowest denomination of the currency.</td>
+        </tr>
+        <tr>
+            <td>authCode</td>
+            <td><code>string</code></td>
+            <td>A code returned from the payment gateway after an attempt to charge, if applicable</td>
+        </tr>
+        <tr>
+            <td>declineCode</td>
+            <td><code>string</code></td>
+            <td>The decline code from the payment gateway, if applicable</td>
+        </tr>
+        <tr>
+            <td>gateway</td>
+            <td><code>string</code></td>
+            <td>The name of the payment gateway</td>
+        </tr>
+        <tr>
+            <td>gatewayReference</td>
+            <td><code>string</code></td>
+            <td>Transaction Reference provided by the payment gateway</td>
+        </tr>
+        <tr>
+            <td>avsResultCode</td>
+            <td><code>string</code></td>
+            <td>The result code from address verification</td>
+        </tr>
+        <tr>
+            <td>cvvResultCode</td>
+            <td><code>string</code></td>
+            <td>The result code from a CVV check</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="payment-method">Payment Method</h2>
+
+<p>An payment method is a way that a customer has registered or used to pay your business. It could appear in multiple forms: <code class="prettyprint">card</code>, <code class="prettyprint">cash</code>, <code class="prettyprint">bitcoin</code>, <code class="prettyprint">voucher</code>, etc. <strong>Please do not send the raw card number, nor the CVV code on the card</strong>.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>customerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the customer.</td>
+        </tr>
+        <tr>
+            <td>methodId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for this payment method.</td>
+        </tr>
+        <tr>
+            <td>deviceId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the device used - e.g. UDID.</td>
+        </tr>
+        <tr>
+            <td>instrumentId</td>
+            <td><code>string</code></td>
+            <td>The consistent hash, or card token of the payment method.</td>
+        </tr>
+        <tr>
+            <td>nickName</td>
+            <td><code>string</code></td>
+            <td>The nickname for the payment method that the customers gives, if applicable.</td>
+        </tr>
+        <tr>
+            <td>methodType</td>
+            <td><code>string</code></td>
+            <td>The type of payment method. Valid values: <code>creditcard</code>, <code>debitcard</code>, <code>voucher</code>, <code>bitcoin</code>, <code>cash</code>, <code>transfer</code>.</td>
+        </tr>
+        <tr>
+            <td>cardBin</td>
+            <td><code>string</code></td>
+            <td>The BIN of the card, if applicable</td>
+        </tr>
+        <tr>
+            <td>cardLastFour</td>
+            <td><code>string</code></td>
+            <td>The last four digits of the card, if applicable</td>
+        </tr>
+        <tr>
+            <td>cardType</td>
+            <td><code>string</code></td>
+            <td>The scheme of the card: <code>visa</code>, <code>amex</code>, etc.</td>
+        </tr>
+        <tr>
+            <td>expiryMonth</td>
+            <td><code>string</code></td>
+            <td>The expiry month (if applicable) as <code>MM</code>.</td>
+        </tr>
+        <tr>
+            <td>expiryYear</td>
+            <td><code>string</code></td>
+            <td>The expiry year (if applicable) as <code>YY</code>.</td>
+        </tr>
+        <tr>
+            <td>successfulRegistration</td>
+            <td><code>bool</code></td>
+            <td>Whether you could successfully register the payment method (e.g. passed verification)</td>
+        </tr>
+        <tr>
+            <td>prepaidCard</td>
+            <td><code>bool</code></td>
+            <td>Whether the payment method was a prepaid card.</td>
+        </tr>
+        <tr>
+            <td>issuer</td>
+            <td><code>string</code></td>
+            <td>The issuer of the payment method: e.g. <code>barclaycard<code></td>
+        </tr>
+        <tr>
+            <td>countryIssued</td>
+            <td><code>string</code></td>
+            <td>The ISO 3166 country code.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 id="typical-events">Typical Events</h3>
+
+<p>A list of typical events that may affect a payment method entity.</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th style="width:175px;">EventType</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>AddCard</code></td>
+            <td>Customer add a card to his account.</td>
+        </tr>
+        <tr>
+            <td><code>CardNickName</code></td>
+            <td>Customer renames card from personal to business.</td>
+        </tr>
+        <tr>
+            <td><code>FailedCardRegistration</code></td>
+            <td>Verification failed on the card.</td>
+        </tr>
+    </tbody>
+</table>
+
+          <h1 id="errors">Errors</h1>
+
+<p>Ravelin uses conventional HTTP response codes to indicate success or failure of an API request. In general, codes in the <code class="prettyprint">2xx</code> range indicate success, codes in the <code class="prettyprint">4xx</code> range indicate an error that resulted from the provided information and codes in the <code class="prettyprint">5xx</code> range indicate an error with Ravelin&rsquo;s system.</p>
+<pre class="highlight shell"><code><span class="c"># Typical Error Reponse</span>
+<span class="o">{</span> 
+    status: 403,
+    message: <span class="s2">"Invalid Request: API Key Incorrect. Please check your credentials and try again"</span>
+<span class="o">}</span>
+</code></pre>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th style="width:100px;">HTTP Code</th>
+            <th>Meaning</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>200</code></td>
+            <td>OK &ndash; Everything worked as expected.</td>
+        </tr>
+        <tr>
+            <td><code>400</code></td>
+            <td>Bad Request &ndash; Often missing a required parameter, e.g. <code>customerId</code>.</td>
+        </tr>
+        <tr>
+            <td><code>401</code></td>
+            <td>Unauthorized &ndash; Your API key is wrong.</td>
+        </tr>
+        <tr>
+            <td><code>403</code></td>
+            <td>Forbidden &ndash; The resource requested is hidden for administrators only.</td>
+        </tr>
+        <tr>
+            <td><code>404</code></td>
+            <td>Not Found &ndash; The specified resource could not be found.</td>
+        </tr>
+        <tr>
+            <td><code>405</code></td>
+            <td>Method Not Allowed &ndash; Often you are not POSTing a request.</td>
+        </tr>
+        <tr>
+            <td><code>406</code></td>
+            <td>Not Acceptable &ndash; You requested a format that isn&rsquo;t JSON.</td>
+        </tr>
+        <tr>
+            <td><code>500</code></td>
+            <td>Internal Server Error &ndash; We had a problem with our server. Please try again later.</td>
+        </tr>
+        <tr>
+            <td><code>503</code></td>
+            <td>Service Unavailable &ndash; We&rsquo;re temporarially offline for maintanance. Please try again later.</td>
+        </tr>
+        <tr>
+            <td><code>504</code></td>
+            <td>Service timeout &ndash; We maybe temporarially offline or over capacity. Please try again later.</td>
+        </tr>
+    </tbody>
+</table>
+
+          <h1 id="industry-specific-examples">Industry Specific Examples</h1>
+
+<h2 id="gaming">Gaming</h2>
+
+<p>For gaming websites below are examples of events and some suggested fields you could submit to the Ravelin API. Please note that every business is different, therefore we activley encourage you to send us more information and not limit yourself to the events below. <em><code class="prettyprint">eventType</code>, <code class="prettyprint">timestamp</code> and <code class="prettyprint">customerId</code> (and/or <code class="prettyprint">sessionId</code>) have been ommited for brevity however are still required for every event.</em></p>
+
+<h3 id="bet-item">Bet Item</h3>
+
+<p>The details of each individual bets.
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>betItemId</td>
+            <td><code>string</code></td>
+            <td>Id of a particular single bet</td>
+        </tr>
+        <tr>
+            <td>betEvent</td>
+            <td><code>string</code></td>
+            <td>The name of the event e.g. grand national</td>
+        </tr>
+        <tr>
+            <td>betEventCategory</td>
+            <td><code>string</code></td>
+            <td>The category of the event e.g. horses</td>
+        </tr>
+        <tr>
+            <td>betEventTime</td>
+            <td><code>int</code></td>
+            <td>The timestamp of the event</td>
+        </tr>
+        <tr>
+            <td>odds</td>
+            <td><code>double</code></td>
+            <td>The odds of the bet in decimal format</td>
+        </tr>
+        <tr>
+            <td>betAmount</td>
+            <td><code>int</code></td>
+            <td>The amount bet on this event in the lowest denomination of the currency.</td>
+        </tr>
+        <tr>
+            <td>currency</td>
+            <td><code>string</code></td>
+            <td>The ISO 4217 currency code.</td>
+        </tr>
+        <tr>
+            <td>result</td>
+            <td><code>bool</code></td>
+            <td>Whether the bet item was been sucessful.</td>
+        </tr>
+    </tbody>
+</table></p>
+
+<h3 id="bet-order">Bet Order</h3>
+
+<p>The details of a collection of individual bets.
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>betOrderId</td>
+            <td><code>string</code></td>
+            <td>Id of the collections of single bets</td>
+        </tr>
+        <tr>
+            <td>TotalBetAmount</td>
+            <td><code>int</code></td>
+            <td>The total amount bet in the lowest denomination of the currency.</td>
+        </tr>
+        <tr>
+            <td>currency</td>
+            <td><code>string</code></td>
+            <td>The ISO 4217 currency code.</td>
+        </tr>
+        <tr>
+            <td>TotalOdds</td>
+            <td><code>string</code></td>
+            <td>Odd of all the bets together</td>
+        </tr>
+        <tr>
+            <td>betType</td>
+            <td><code>string</code></td>
+            <td>e.g. <code>Win</code>, <code>EachWay</code></td>
+        </tr>
+        <tr>
+            <td>betCount</td>
+            <td><code>int</code></td>
+            <td>Number of bets in bet order</td>
+        </tr>
+        <tr>
+            <td>result</td>
+            <td><code>bool</code></td>
+            <td>Whether the bet was sucessful.</td>
+        </tr>
+    </tbody>
+</table></p>
+
+<h2 id="mobile-payments">Mobile Payments</h2>
+
+<p>For mobile payment apps below are examples of events and some suggested fields you could submit to the Ravelin API. Please note that every business is different, therefore we activley encourage you to send us more information and not limit yourself to the events below. <em><code class="prettyprint">eventType</code>, <code class="prettyprint">timestamp</code> and <code class="prettyprint">customerId</code> (and/or <code class="prettyprint">sessionId</code>) have been ommited for brevity however are still required for every event.</em></p>
+
+<h3 id="funds-deposit-&amp;-funds-withdraw">Funds Deposit &amp; Funds Withdraw</h3>
+
+<p>Deposits and Withdraws to an account can be treated as a transaction (credit/debit) without an orderId.
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>transactionId</td>
+            <td><code>string</code></td>
+            <td>A unique identifier for the transaction.</td>
+        </tr>
+        <tr>
+            <td>paymentMethodId</td>
+            <td><code>string</code></td>
+            <td>ID of the payment method used to add credit</td>
+        </tr>
+        <tr>
+            <td>customerId</td>
+            <td><code>string</code></td>
+            <td>The unique identifier of the customer.</td>
+        </tr>
+        <tr>
+            <td>success</td>
+            <td><code>bool</code></td>
+            <td>Whether the transaction successfully completed with no error.</td>
+        </tr>
+        <tr>
+            <td>email</td>
+            <td><code>string</code></td>
+            <td>The email that the customer wants to be notified about transactions on.</td>
+        </tr>
+        <tr>
+            <td>currency</td>
+            <td><code>string</code></td>
+            <td>The ISO 4217 currency code.</td>
+        </tr>
+        <tr>
+            <td>debit</td>
+            <td><code>int</code></td>
+            <td>The debit amount of the transaction in the lowest denomination of the currency.</td>
+        </tr>
+        <tr>
+            <td>credit</td>
+            <td><code>int</code></td>
+            <td>The credit amount of the transaction in the lowest denomination of the currency.</td>
+        </tr>
+        <tr>
+            <td>authCode</td>
+            <td><code>string</code></td>
+            <td>A code returned from the payment gateway after an attempt to charge, if applicable</td>
+        </tr>
+        <tr>
+            <td>declineCode</td>
+            <td><code>string</code></td>
+            <td>The decline code from the payment gateway, if applicable</td>
+        </tr>
+        <tr>
+            <td>gateway</td>
+            <td><code>string</code></td>
+            <td>The name of the payment gateway</td>
+        </tr>
+        <tr>
+            <td>gatewayReference</td>
+            <td><code>string</code></td>
+            <td>Transaction Reference provided by the payment gateway</td>
+        </tr>
+        <tr>
+            <td>avsResultCode</td>
+            <td><code>string</code></td>
+            <td>The result code from address verification</td>
+        </tr>
+        <tr>
+            <td>cvvResultCode</td>
+            <td><code>string</code></td>
+            <td>The result code from a CVV check</td>
+        </tr>
+    </tbody>
+</table></p>
+
+<h3 id="seller-details">Seller Details</h3>
+
+<p>Sending us the sellerId details with their location
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>SellerId</td>
+            <td><code>string</code></td>
+            <td>Id of the seller</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td><code>string</code></td>
+            <td>The name of the seller.</td>
+        </tr>
+        <tr>
+            <td>streetAddress1</td>
+            <td><code>string</code></td>
+            <td>First line of the street address.</td>
+        </tr>
+        <tr>
+            <td>streetAddress2</td>
+            <td><code>string</code></td>
+            <td>Second line of the street address.</td>
+        </tr>
+        <tr>
+            <td>addressLocale</td>
+            <td><code>string</code></td>
+            <td>The city/village/town of the location.</td>
+        </tr>
+        <tr>
+            <td>addressRegion</td>
+            <td><code>string</code></td>
+            <td>The state/county of the location.</td>
+        </tr>
+        <tr>
+            <td>addressCountry</td>
+            <td><code>string</code></td>
+            <td>The ISO 3166 country code.</td>
+        </tr>
+        <tr>
+            <td>postOfficeBoxNumber</td>
+            <td><code>string</code></td>
+            <td>The PO box number, if applicable.</td>
+        </tr>
+        <tr>
+            <td>latitude</td>
+            <td><code>double</code></td>
+            <td>The latitude of the location.</td>
+        </tr>
+        <tr>
+            <td>longitude</td>
+            <td><code>double</code></td>
+            <td>The longitude of the location.</td>
+        </tr>
+        <tr>
+            <td>geohash</td>
+            <td><code>string</code></td>
+            <td>The geohash of the location, if applicable.</td>
+        </tr>
+    </tbody>
+</table></p>
+
+<h3 id="split-order">Split Order</h3>
+
+<p>If your payment app allows customers to split the bill there are a couple of options.</p>
+
+<ul>
+<li>If your app knows specifically what each individual is paying for, you can send two orders events and two sets of items and a transaction for each customer.</li>
+<li>If your app does not know specifically what each breakdown you can send the following event.</li>
+</ul>
+
+<p><em><code class="prettyprint">eventType</code>, <code class="prettyprint">timestamp</code> and <code class="prettyprint">customerId</code> (and/or <code class="prettyprint">sessionId</code>) have been ommited for brevity however are still required for every event.</em>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th style="width:75px;">Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>orderId</td>
+            <td><code>string</code></td>
+            <td>ID of the order</td>
+        </tr>
+        <tr>
+            <td>NumberOfPayer</td>
+            <td><code>int</code></td>
+            <td>The number of customer paying for this order.</td>
+        </tr>
+    </tbody>
+</table></p>
+
+<!--
+## Taxi App
+
+### Typical Events
+A list of typical events for taxi apps.
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th style="width:175px;">EventType</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>PickupTime</code></td>
+            <td>Customer sign&rsquo;s up to your service.</td>
+        </tr>
+        <tr>
+            <td><code>SplitBill</code></td>
+            <td>Customer changed any profile information</td>
+        </tr>
+        <tr>
+            <td><code>PriceMultiplier</code></td>
+            <td>Customer uploads a photo for his profile</td>
+        </tr>
+        <tr>
+            <td><code>Tip</code></td>
+            <td>Customer verifies their email address</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Auction Website
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&rsquo;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+
+### Typical Events
+A list of typical events for taxi apps.
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th style="width:175px;">EventType</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>BidPlaced</code></td>
+            <td>Customer sign&rsquo;s up to your service.</td>
+        </tr>
+        <tr>
+            <td><code>ListItem</code></td>
+            <td>Customer changed any profile information</td>
+        </tr>
+        <tr>
+            <td><code>SendMessageToSeller</code></td>
+            <td>Customer uploads a photo for his profile</td>
+        </tr>
+        <tr>
+            <td><code>WatchItem</code></td>
+            <td>Customer verifies their phone number</td>
+        </tr>
+        <tr>
+            <td><code>KnowYouCustomer</code></td>
+            <td>Customer uploads a photo for his profile</td>
+        </tr>
+    </tbody>
+</table>
+
+&ndash;>
+
+      </div>
+      <div class="dark-box">
+      </div>
+    </div>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  </body>
+</html>
